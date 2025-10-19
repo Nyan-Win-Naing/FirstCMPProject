@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<resources>
+    <string name="email_or_phone_hint">Email or phone number</string>
+    <string name="password_hint">Password</string>
+    <string name="hide">HIDE</string>
+    <string name="show">SHOW</string>
+    <string name="sign_in">Sign In</string>
+    <string name="or">OR</string>
+    <string name="use_a_sign_in_code">Use a sign-in code</string>
+    <string name="forget_password">Forget Password ?</string>
+</resources>
