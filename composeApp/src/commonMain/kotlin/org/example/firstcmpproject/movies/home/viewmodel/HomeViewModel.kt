@@ -9,6 +9,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.example.firstcmpproject.movies.data.MovieRepository
+import org.example.firstcmpproject.movies.home.actions.HomeActions
+import org.example.firstcmpproject.movies.home.events.HomeEvents
 import org.example.firstcmpproject.movies.home.state.HomeState
 
 class HomeViewModel : ViewModel() {
@@ -17,8 +19,12 @@ class HomeViewModel : ViewModel() {
     private val _state = MutableStateFlow(HomeState())
     val state = _state.asStateFlow()
 
-    private val _navigateToDetailSharedFlow: MutableSharedFlow<Long> = MutableSharedFlow()
-    val navigateToDetailsSharedFlow = _navigateToDetailSharedFlow.asSharedFlow()
+    private val _navigationSharedFlow: MutableSharedFlow<HomeEvents> = MutableSharedFlow()
+    val navigationSharedFlow = _navigationSharedFlow.asSharedFlow()
+
+
+//    private val _navigateToDetailSharedFlow: MutableSharedFlow<Long> = MutableSharedFlow()
+//    val navigateToDetailsSharedFlow = _navigateToDetailSharedFlow.asSharedFlow()
 
     init {
         // Featured Movies
@@ -41,9 +47,20 @@ class HomeViewModel : ViewModel() {
         }
     }
 
-    fun onTapMovie(movieId: Long) {
-        viewModelScope.launch {
-            _navigateToDetailSharedFlow.emit(movieId)
+    fun onAction(action: HomeActions) {
+        when (action) {
+            is HomeActions.OnTapMovie -> {
+                /// TODO: Side Effect Flow
+                viewModelScope.launch {
+                    _navigationSharedFlow.emit(HomeEvents.NavigateToDetails(action.movieId))
+                }
+            }
         }
     }
+
+//    fun onTapMovie(movieId: Long) {
+//        viewModelScope.launch {
+//            _navigateToDetailSharedFlow.emit(movieId)
+//        }
+//    }
 }

@@ -9,9 +9,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.example.firstcmpproject.movies.data.MovieRepository
+import org.example.firstcmpproject.movies.detail.actions.DetailActions
+import org.example.firstcmpproject.movies.detail.events.DetailEvents
 import org.example.firstcmpproject.movies.detail.state.MovieDetailsState
 
-class MovieDetailsViewModel(val movieId: Long): ViewModel() {
+class MovieDetailsViewModel(val movieId: Long) : ViewModel() {
 
     // Repository
     private val movieRepository = MovieRepository
@@ -20,11 +22,13 @@ class MovieDetailsViewModel(val movieId: Long): ViewModel() {
     private val _state = MutableStateFlow(MovieDetailsState())
     val state = _state.asStateFlow()
 
-    private val _navigateToDetailSharedFlow: MutableSharedFlow<Long> = MutableSharedFlow()
-    val navigateToDetailsSharedFlow = _navigateToDetailSharedFlow.asSharedFlow()
-
-    private val _navigateBackHomeSharedFlow: MutableSharedFlow<Boolean> = MutableSharedFlow()
-    val navigateBackHomeSharedFlow = _navigateBackHomeSharedFlow.asSharedFlow()
+    //    private val _navigateToDetailSharedFlow: MutableSharedFlow<Long> = MutableSharedFlow()
+//    val navigateToDetailsSharedFlow = _navigateToDetailSharedFlow.asSharedFlow()
+//
+//    private val _navigateBackHomeSharedFlow: MutableSharedFlow<Boolean> = MutableSharedFlow()
+//    val navigateBackHomeSharedFlow = _navigateBackHomeSharedFlow.asSharedFlow()
+    private val _navigationSharedFlow: MutableSharedFlow<DetailEvents> = MutableSharedFlow()
+    val navigationSharedFlow = _navigationSharedFlow.asSharedFlow()
 
     init {
         // Network
@@ -52,15 +56,31 @@ class MovieDetailsViewModel(val movieId: Long): ViewModel() {
         }
     }
 
-    fun onTapMovie(movieId: Long) {
-        viewModelScope.launch {
-            _navigateToDetailSharedFlow.emit(movieId)
-        }
-    }
+//    fun onTapMovie(movieId: Long) {
+//        viewModelScope.launch {
+//            _navigateToDetailSharedFlow.emit(movieId)
+//        }
+//    }
+//
+//    fun onTapBack() {
+//        viewModelScope.launch {
+//            _navigateBackHomeSharedFlow.emit(true)
+//        }
+//    }
 
-    fun onTapBack() {
-        viewModelScope.launch {
-            _navigateBackHomeSharedFlow.emit(true)
+    fun onAction(action: DetailActions) {
+        when (action) {
+            is DetailActions.OnTapMovie -> {
+                viewModelScope.launch {
+                    _navigationSharedFlow.emit(DetailEvents.NavigateToDetails(action.movieId))
+                }
+            }
+
+            is DetailActions.OnTapBack -> {
+                viewModelScope.launch {
+                    _navigationSharedFlow.emit(DetailEvents.NavigateToBack())
+                }
+            }
         }
     }
 }

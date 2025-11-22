@@ -15,6 +15,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.collectLatest
 import org.example.firstcmpproject.core.MARGIN_MEDIUM
 import org.example.firstcmpproject.core.MARGIN_MEDIUM_2
+import org.example.firstcmpproject.movies.home.actions.HomeActions
+import org.example.firstcmpproject.movies.home.events.HomeEvents
 import org.example.firstcmpproject.movies.home.state.HomeState
 import org.example.firstcmpproject.movies.home.viewmodel.HomeViewModel
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -23,25 +25,34 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 fun HomeRoute(
     viewModel: HomeViewModel,
     onTapMovie: (Long) -> Unit
+
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        viewModel.navigateToDetailsSharedFlow.collectLatest {
-            onTapMovie(it)
+//        viewModel.navigateToDetailsSharedFlow.collectLatest {
+//            onTapMovie(it)
+//        }
+
+        viewModel.navigationSharedFlow.collectLatest { event ->
+            when(event) {
+                is HomeEvents.NavigateToDetails -> {
+                    onTapMovie(event.movieId)
+                }
+            }
         }
     }
 
     HomeScreen(
         state = state,
-        onTapMovie = {
-            viewModel.onTapMovie(it)
+        onAction = { action ->
+            viewModel.onAction(action)
         }
     )
 }
 
 @Composable
-fun HomeScreen(state: HomeState, onTapMovie: (Long) -> Unit) {
+fun HomeScreen(state: HomeState, onAction: (HomeActions) -> Unit) {
     Scaffold(
         topBar = {
             HomeAppBar()
@@ -61,7 +72,8 @@ fun HomeScreen(state: HomeState, onTapMovie: (Long) -> Unit) {
                     FeaturedMovie(
                         movie = state.featuredMovie,
                         modifier = Modifier.clickable {
-                            onTapMovie(state.featuredMovie.id);
+//                            onTapMovie(state.featuredMovie.id);
+                            onAction(HomeActions.OnTapMovie(state.featuredMovie.id))
                         },
                     )
                 }
@@ -78,7 +90,7 @@ fun HomeScreen(state: HomeState, onTapMovie: (Long) -> Unit) {
                     genre = state.moviesByGenre[index].first,
                     movieList = state.moviesByGenre[index].second,
                     onTapMovie = {
-                        onTapMovie(it)
+                        onAction(HomeActions.OnTapMovie(it))
                     },
                 )
             }
@@ -86,9 +98,3 @@ fun HomeScreen(state: HomeState, onTapMovie: (Long) -> Unit) {
     }
 }
 
-
-@Preview
-@Composable
-fun HomeScreenPreview() {
-    HomeScreen(state = HomeState(), onTapMovie = {})
-}

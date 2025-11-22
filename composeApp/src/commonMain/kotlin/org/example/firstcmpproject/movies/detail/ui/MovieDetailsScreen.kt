@@ -49,8 +49,12 @@ import org.example.firstcmpproject.core.TEXT_REGULAR_3X
 import org.example.firstcmpproject.core.TEXT_SMALL
 import org.example.firstcmpproject.core.TEXT_SMALL_2X
 import org.example.firstcmpproject.movies.MovieItem
+import org.example.firstcmpproject.movies.detail.actions.DetailActions
+import org.example.firstcmpproject.movies.detail.events.DetailEvents
 import org.example.firstcmpproject.movies.detail.state.MovieDetailsState
 import org.example.firstcmpproject.movies.detail.viewmodel.MovieDetailsViewModel
+import org.example.firstcmpproject.movies.home.actions.HomeActions
+import org.example.firstcmpproject.movies.home.events.HomeEvents
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
@@ -63,15 +67,27 @@ fun MovieDetailsRoute(
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        launch {
-            viewModel.navigateToDetailsSharedFlow.collectLatest {
-                onTapMovie(it)
-            }
-        }
+//        launch {
+//            viewModel.navigateToDetailsSharedFlow.collectLatest {
+//                onTapMovie(it)
+//            }
+//        }
+//
+//        launch {
+//            viewModel.navigateBackHomeSharedFlow.collectLatest {
+//                onTapBack()
+//            }
+//        }
 
-        launch {
-            viewModel.navigateBackHomeSharedFlow.collectLatest {
-                onTapBack()
+        viewModel.navigationSharedFlow.collectLatest { event ->
+            when(event) {
+                is DetailEvents.NavigateToDetails -> {
+                    onTapMovie(event.movieId)
+                }
+
+                is DetailEvents.NavigateToBack -> {
+                    onTapBack()
+                }
             }
         }
     }
@@ -84,20 +100,24 @@ fun MovieDetailsRoute(
 
     MovieDetailsScreen(
         state = state,
-        onTapBack = {
-            viewModel.onTapBack()
-        },
-        onTapMovie = {
-            viewModel.onTapMovie(it)
-        },
+        onAction = { action ->
+            viewModel.onAction(action)
+        }
+//        onTapBack = {
+//            viewModel.onTapBack()
+//        },
+//        onTapMovie = {
+//            viewModel.onTapMovie(it)
+//        },
     )
 }
 
 @Composable
 fun MovieDetailsScreen(
     state: MovieDetailsState,
-    onTapBack: () -> Unit,
-    onTapMovie: (Long) -> Unit
+//    onTapBack: () -> Unit,
+//    onTapMovie: (Long) -> Unit
+    onAction: (DetailActions) -> Unit
 ) {
     Scaffold(containerColor = Color.Black) {
 
@@ -106,7 +126,9 @@ fun MovieDetailsScreen(
                 // Movie Image
 
                 item {
-                    DetailsMovieImage(movie = state.movieDetails, onTapBack = onTapBack)
+                    DetailsMovieImage(movie = state.movieDetails, onTapBack = {
+                        onAction(DetailActions.OnTapBack())
+                    })
                 }
 
 
@@ -242,7 +264,12 @@ fun MovieDetailsScreen(
                         modifier = Modifier.height((MOVIE_ITEM_HEIGHT + MARGIN_CARD_MEDIUM_2) * ((state.similarMovies.count() / 3) + 1))
                     ) {
                         items(state.similarMovies) {
-                            MovieItem(movie = it, onTapMovie = onTapMovie)
+                            MovieItem(
+                                movie = it,
+                                onTapMovie = {
+                                    onAction(DetailActions.OnTapMovie(it))
+                                },
+                            )
                         }
                     }
                 }
