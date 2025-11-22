@@ -21,6 +21,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,6 +31,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import org.example.firstcmpproject.core.DETAILS_BUTTON_ICON_SIZE
 import org.example.firstcmpproject.core.MARGIN_40
 import org.example.firstcmpproject.core.MARGIN_CARD_MEDIUM_2
@@ -59,10 +62,34 @@ fun MovieDetailsRoute(
 
     val state by viewModel.state.collectAsStateWithLifecycle()
 
+    LaunchedEffect(Unit) {
+        launch {
+            viewModel.navigateToDetailsSharedFlow.collectLatest {
+                onTapMovie(it)
+            }
+        }
+
+        launch {
+            viewModel.navigateBackHomeSharedFlow.collectLatest {
+                onTapBack()
+            }
+        }
+    }
+
+//    LaunchedEffect(Unit) {
+//        viewModel.navigateBackHomeSharedFlow.collectLatest {
+//            onTapBack()
+//        }
+//    }
+
     MovieDetailsScreen(
         state = state,
-        onTapBack = onTapBack,
-        onTapMovie = onTapMovie,
+        onTapBack = {
+            viewModel.onTapBack()
+        },
+        onTapMovie = {
+            viewModel.onTapMovie(it)
+        },
     )
 }
 

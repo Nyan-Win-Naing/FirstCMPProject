@@ -2,7 +2,9 @@ package org.example.firstcmpproject.movies.detail.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -17,6 +19,12 @@ class MovieDetailsViewModel(val movieId: Long): ViewModel() {
     /// State
     private val _state = MutableStateFlow(MovieDetailsState())
     val state = _state.asStateFlow()
+
+    private val _navigateToDetailSharedFlow: MutableSharedFlow<Long> = MutableSharedFlow()
+    val navigateToDetailsSharedFlow = _navigateToDetailSharedFlow.asSharedFlow()
+
+    private val _navigateBackHomeSharedFlow: MutableSharedFlow<Boolean> = MutableSharedFlow()
+    val navigateBackHomeSharedFlow = _navigateBackHomeSharedFlow.asSharedFlow()
 
     init {
         // Network
@@ -41,6 +49,18 @@ class MovieDetailsViewModel(val movieId: Long): ViewModel() {
             _state.update {
                 it.copy(movieDetails = movieDetails)
             }
+        }
+    }
+
+    fun onTapMovie(movieId: Long) {
+        viewModelScope.launch {
+            _navigateToDetailSharedFlow.emit(movieId)
+        }
+    }
+
+    fun onTapBack() {
+        viewModelScope.launch {
+            _navigateBackHomeSharedFlow.emit(true)
         }
     }
 }

@@ -7,10 +7,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.flow.collectLatest
 import org.example.firstcmpproject.core.MARGIN_MEDIUM
 import org.example.firstcmpproject.core.MARGIN_MEDIUM_2
 import org.example.firstcmpproject.movies.home.state.HomeState
@@ -24,9 +26,17 @@ fun HomeRoute(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
+    LaunchedEffect(Unit) {
+        viewModel.navigateToDetailsSharedFlow.collectLatest {
+            onTapMovie(it)
+        }
+    }
+
     HomeScreen(
         state = state,
-        onTapMovie = onTapMovie
+        onTapMovie = {
+            viewModel.onTapMovie(it)
+        }
     )
 }
 

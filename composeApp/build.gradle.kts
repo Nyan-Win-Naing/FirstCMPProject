@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.jetbrains.kotlin.serialization)
     alias(libs.plugins.ksp)
+//    alias(libs.plugins.sqldelight)
 }
 
 kotlin {
@@ -35,6 +36,7 @@ kotlin {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
             implementation(libs.ktor.client.okhttp)
+//            implementation(libs.android.driver)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -56,6 +58,8 @@ kotlin {
 
             implementation(libs.androidx.room.runtime)
             implementation(libs.sqlite.bundled)
+
+//            implementation(libs.runtime)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -63,6 +67,9 @@ kotlin {
         iosMain.dependencies{
             implementation(libs.ktor.client.darwin)
         }
+//        nativeMain.dependencies {
+//            implementation(libs.native.driver)
+//        }
     }
 }
 
